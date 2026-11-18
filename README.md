@@ -6,7 +6,7 @@ Europe and the UK. Alerts go to Telegram, and Claude writes daily briefings.
 
 > Decision-support only, not financial advice.
 
-**Status:** Phase 1 of 9 complete (v0.1.0). See [docs/ROADMAP.md](docs/ROADMAP.md).
+**Status:** Phase 2 of 9 built (v0.2.0): official macro data for the US, euro area, UK, Japan and Korea. See [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Try it in the browser (nothing to install)
 1. On GitHub: **Code → Codespaces → Create codespace on main**.
@@ -26,6 +26,18 @@ at the bottom (it shows the number of forwarded ports) → hover over port **800
 - Check the **Run GlobalMarketWatch** terminal for error messages.
 
 Stop the codespace when you're done (**Codespaces → Stop**) to save your free monthly hours.
+
+## Adding API keys (Codespaces)
+Most sources need no key. Two do, and both are free:
+
+| Secret name | Where to get it | Unlocks |
+|---|---|---|
+| `GMW_FRED_API_KEY` | fred.stlouisfed.org → My Account → API Keys | US CPI, PCE, payrolls, GDP, Fed funds, spreads |
+| `GMW_BOK_ECOS_API_KEY` | ecos.bok.or.kr → Open API → apply for a key | Korea base rate, CPI, bond yields |
+
+Add them on GitHub: **repository Settings → Secrets and variables → Codespaces → New repository
+secret**. Then restart the codespace (or rebuild it). Never put keys in code, chats or commits.
+After adding a key, press **Run now** next to the source on the status page.
 
 ## How it's built
 - One Python app (FastAPI web server + background scheduler) and a SQLite database
