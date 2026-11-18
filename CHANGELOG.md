@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1] — 2026-11-18
+### Fixed
+- Codespaces: the app now starts in a visible VS Code task ("Run GlobalMarketWatch") when the
+  codespace opens, replacing a detached background command that could die silently
+- Codespaces: the dashboard opens in an in-editor preview pane (not blocked by pop-up blockers)
+- README: how to open the dashboard in a full tab, plus troubleshooting
+
 ## [0.1.0] — 2026-11-18 — Phase 1: skeleton app + database
 ### Added
 - Project layout for all modules (M0–M10) per architecture v1.1
