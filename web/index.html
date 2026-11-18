@@ -23,7 +23,13 @@
 
   <section>
     <h2>Background jobs</h2>
-    <table id="collectors"><thead><tr><th>Job</th><th>Last success</th><th>Last error</th><th>Detail</th></tr></thead><tbody></tbody></table>
+    <table id="collectors"><thead><tr><th>Job</th><th>Last success</th><th>Last error</th><th>Detail</th><th></th></tr></thead><tbody></tbody></table>
+  </section>
+
+  <section>
+    <h2>Macro data <span class="muted" id="macro-count"></span></h2>
+    <p class="muted">Latest official figures. Collected automatically just after scheduled release times (UK time). Full charts arrive in phase 3.</p>
+    <table id="macro"><thead><tr><th>Region</th><th>Series</th><th class="num">Latest</th><th class="num">Change</th><th>Period</th><th>Source · first seen</th></tr></thead><tbody></tbody></table>
   </section>
 
   <section>
@@ -60,16 +66,53 @@ async function refresh() {
     document.getElementById("uptime").textContent = fmtUptime(d.uptime_seconds);
     document.getElementById("schema").textContent = `v${d.schema_version}`;
     document.getElementById("env").textContent = d.env;
-    document.querySelector("#collectors tbody").innerHTML = d.collectors.map(c =>
-      `<tr><td>${esc(c.name)}</td><td>${fmtAge(c.last_success)}</td><td>${c.last_error ? `<span class="err">${fmtAge(c.last_error)}</span>` : "—"}</td><td>${esc(c.detail || c.last_error_msg)}</td></tr>`).join("");
+    document.querySelector("#collectors tbody").innerHTML = d.collectors.map(c => {
+      const err = c.last_error && (!c.last_success || c.last_error >= c.last_success);
+      const run = c.name.startsWith("macro.") ? `<button class="run" onclick="runSource('${c.name.slice(6)}', this)">Run now</button>` : "";
+      return `<tr><td>${esc(c.name)}</td><td>${fmtAge(c.last_success)}</td><td>${c.last_error ? `<span class="err" title="${esc(c.last_error_msg)}">${fmtAge(c.last_error)}</span>` : "—"}</td><td>${esc(c.detail)}${err ? `<div class="err small">${esc(c.last_error_msg)}</div>` : ""}</td><td>${run}</td></tr>`;
+    }).join("");
     document.getElementById("integrations").innerHTML = Object.entries(d.integrations).map(([k, on]) =>
       `<span class="chip ${on ? "on" : ""}">${on ? "✓" : "○"} ${esc(k)}</span>`).join("");
     document.querySelector("#watchlist tbody").innerHTML = d.watchlist.map(w =>
       `<tr><td>${esc(w.name)} <span class="muted">${esc(w.key)}</span></td><td>${esc(w.asset_class)}</td><td>${esc(w.region)}</td><td>${esc(w.entry_type)}</td></tr>`).join("");
     document.getElementById("updated").textContent = "Updated " + new Date().toLocaleTimeString();
+    await refreshMacro();
   } catch (e) {
     document.getElementById("health").innerHTML = '<span class="err">● Unreachable</span>';
   }
+}
+
+const fmtNum = (v, unit) => v === null || v === undefined ? "—" : (Math.abs(v) >= 100 ? v.toLocaleString(undefined, {maximumFractionDigits: 1}) : v.toFixed(2)) + (unit === "%" ? "%" : unit === "pp" ? " pp" : unit === "k" ? "k" : "");
+const fmtPeriod = (d, f) => {
+  if (!d) return "—";
+  const dt = new Date(d + "T00:00:00Z");
+  if (f === "m") return dt.toLocaleDateString(undefined, {month: "short", year: "numeric", timeZone: "UTC"});
+  if (f === "q") return `Q${Math.floor(dt.getUTCMonth() / 3) + 1} ${dt.getUTCFullYear()}`;
+  return dt.toLocaleDateString(undefined, {day: "numeric", month: "short", year: "numeric", timeZone: "UTC"});
+};
+
+async function refreshMacro() {
+  const r = await fetch("/api/macro/latest");
+  if (!r.ok) return;
+  const d = await r.json();
+  document.getElementById("macro-count").textContent = `${d.with_data} of ${d.count} series have data`;
+  document.querySelector("#macro tbody").innerHTML = d.series.map(s => {
+    const chg = s.value !== null && s.prev !== null ? s.value - s.prev : null;
+    const cls = chg > 0 ? "up" : chg < 0 ? "down" : "";
+    const flags = (s.verified ? "" : ' <span class="tag" title="Source code not yet confirmed against live data">unverified</span>') + (s.revised ? ' <span class="tag" title="This figure was revised by the source">revised</span>' : "");
+    return `<tr><td>${esc(s.region)}</td><td>${esc(s.name)}${flags}</td><td class="num">${fmtNum(s.value, s.unit)}</td><td class="num ${cls}">${chg === null ? "—" : (chg > 0 ? "+" : "") + chg.toFixed(2)}</td><td>${fmtPeriod(s.obs_date, s.frequency)}</td><td class="muted">${esc(s.source)}${s.released_at ? " · " + fmtAge(s.released_at) : ""}</td></tr>`;
+  }).join("");
+}
+
+async function runSource(name, btn) {
+  btn.disabled = true; btn.textContent = "Running…";
+  try {
+    const r = await fetch(`/api/collectors/macro/${name}/run`, {method: "POST"});
+    const d = await r.json();
+    btn.textContent = r.ok ? "Done" : "Failed";
+    btn.title = d.summary || d.detail || "";
+  } catch (e) { btn.textContent = "Failed"; }
+  await refresh();
 }
 refresh();
 setInterval(refresh, 15000);

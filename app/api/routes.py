@@ -48,3 +48,45 @@ def status(request: Request) -> dict:
         "table_counts": counts,
         "watchlist": watchlist,
     }
+
+
+@router.get("/macro/latest")
+def macro_latest(request: Request) -> dict:
+    """Latest value of every macro series, with previous value, date, source and freshness."""
+    settings = request.app.state.settings
+    cat_series = request.app.state.catalogue.series
+    verified = {s.key: s.verified for s in cat_series}
+    order = {s.key: i for i, s in enumerate(cat_series)}   # catalogue order: US → KR, short → long
+    with session(settings.db_path) as conn:
+        rows = conn.execute(
+            """SELECT s.series_key, s.name, s.region, s.unit, s.frequency, s.source,
+                      o.obs_date, o.value, o.released_at, o.fetched_at, o.revised,
+                      (SELECT p.value FROM macro_obs p WHERE p.series_key = s.series_key
+                         AND p.obs_date < o.obs_date ORDER BY p.obs_date DESC LIMIT 1) AS prev
+               FROM macro_series s
+               LEFT JOIN macro_obs o ON o.series_key = s.series_key AND o.obs_date =
+                    (SELECT MAX(obs_date) FROM macro_obs WHERE series_key = s.series_key)
+"""
+        ).fetchall()
+    rows = sorted(rows, key=lambda r: order.get(r["series_key"], len(order)))
+    series = []
+    for r in rows:
+        d = dict(r)
+        d["verified"] = verified.get(d["series_key"], True)
+        series.append(d)
+    return {"count": len(series), "with_data": sum(1 for s in series if s["value"] is not None),
+            "series": series}
+
+
+@router.post("/collectors/macro/{source}/run")
+def run_macro_source(source: str, request: Request) -> dict:
+    """Run one macro source now (e.g. right after adding its API key)."""
+    from fastapi import HTTPException
+
+    from app.collectors.macro.runner import run_source
+
+    cat = request.app.state.catalogue
+    if source not in cat.sources:
+        raise HTTPException(404, f"Unknown source '{source}'")
+    res = run_source(source, cat, request.app.state.settings)
+    return {"source": source, "summary": res.summary(), "failed": res.failed}
