@@ -32,6 +32,8 @@ class Settings(BaseSettings):
 
     # Scheduler
     heartbeat_seconds: int = 60
+    collectors_enabled: bool = True   # off in tests; on when the app runs
+    macro_lookback_years: int = 3     # history fetched on the first run
 
     # API keys (filled in later phases; empty = feature disabled)
     fred_api_key: str = ""

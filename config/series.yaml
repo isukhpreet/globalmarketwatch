@@ -1,0 +1,92 @@
+# Macro series catalogue (architecture §6.2). Phase 2, issue #3.
+#
+# sources: how and when each data source is polled.
+#   schedule  — cron expressions in UK time (Europe/London), timed just after usual release times
+#   key       — setting that must be filled in .env for the source to run (omit if no key needed)
+# series: one entry per stored series.
+#   key        — our id: REGION.TOPIC.DETAIL
+#   source_id  — the id at the source (FRED id, ECB key, CSV column, ECOS stat/item…)
+#   params     — extra per-series parameters for the source
+#   transform  — none (default) | yoy  (compute % change vs the same period a year earlier)
+#   verified   — false = code/format not yet confirmed against live data (shown on status page)
+
+sources:
+  fred:
+    key: fred_api_key
+    schedule: ["35 13 * * mon-fri", "5 15 * * mon-fri", "30 22 * * mon-fri"]  # 08:30/10:00 ET releases, evening daily rates
+  treasury:
+    schedule: ["15 22 * * mon-fri", "30 7 * * tue-sat"]                         # curve posted late US afternoon
+  ecb:
+    schedule: ["5 10 * * mon-fri", "15 16 * * mon-fri"]                         # HICP flash 11:00 CET; daily rates/curves afternoon
+  boe:
+    schedule: ["10 12 * * mon-fri", "30 17 * * mon-fri"]                        # rate decisions 12:00; daily yields late afternoon
+  ons:
+    schedule: ["5 7 * * mon-fri", "30 9 * * mon-fri"]                           # ONS releases at 07:00
+  mof:
+    schedule: ["0 9 * * mon-fri", "0 21 * * mon-fri"]                           # JGB reference rates, Tokyo close
+  boj:
+    schedule: ["15 0 * * mon-fri", "15 9 * * mon-fri"]                          # Tokyo morning / after policy decisions
+  ecos:
+    key: bok_ecos_api_key
+    schedule: ["10 0 * * *", "30 9 * * mon-fri"]                                # Korea data ~08:00 KST; daily rates
+
+series:
+  # ── United States ── FRED (key) ─────────────────────────────────────────────
+  - {key: US.CPI.YOY,      name: "CPI, % y/y",                region: US, unit: "%",    frequency: m, source: fred, source_id: CPIAUCSL, params: {units: pc1}}
+  - {key: US.CORECPI.YOY,  name: "Core CPI, % y/y",           region: US, unit: "%",    frequency: m, source: fred, source_id: CPILFESL, params: {units: pc1}}
+  - {key: US.PCE.YOY,      name: "PCE prices, % y/y",         region: US, unit: "%",    frequency: m, source: fred, source_id: PCEPI,    params: {units: pc1}}
+  - {key: US.COREPCE.YOY,  name: "Core PCE prices, % y/y",    region: US, unit: "%",    frequency: m, source: fred, source_id: PCEPILFE, params: {units: pc1}}
+  - {key: US.NFP.CHG,      name: "Nonfarm payrolls, change",  region: US, unit: "k",    frequency: m, source: fred, source_id: PAYEMS,   params: {units: chg}}
+  - {key: US.UNEMP,        name: "Unemployment rate",         region: US, unit: "%",    frequency: m, source: fred, source_id: UNRATE}
+  - {key: US.GDP.QOQ_AR,   name: "Real GDP, % q/q annualised",region: US, unit: "%",    frequency: q, source: fred, source_id: GDPC1,    params: {units: pca}}
+  - {key: US.FEDFUNDS.EFF, name: "Fed funds effective rate",  region: US, unit: "%",    frequency: d, source: fred, source_id: DFF}
+  - {key: US.FEDFUNDS.UPPER, name: "Fed funds target, upper", region: US, unit: "%",    frequency: d, source: fred, source_id: DFEDTARU}
+  - {key: US.SPREAD.2S10S, name: "10y minus 2y Treasury spread", region: US, unit: "pp", frequency: d, source: fred, source_id: T10Y2Y}
+  - {key: US.BREAKEVEN.10Y, name: "10y breakeven inflation",  region: US, unit: "%",    frequency: d, source: fred, source_id: T10YIE}
+
+  # ── United States ── Treasury daily par yield curve (no key) ───────────────
+  - {key: US.UST.1M,  name: "Treasury 1-month",  region: US, unit: "%", frequency: d, source: treasury, source_id: "1 Mo"}
+  - {key: US.UST.3M,  name: "Treasury 3-month",  region: US, unit: "%", frequency: d, source: treasury, source_id: "3 Mo"}
+  - {key: US.UST.6M,  name: "Treasury 6-month",  region: US, unit: "%", frequency: d, source: treasury, source_id: "6 Mo"}
+  - {key: US.UST.1Y,  name: "Treasury 1-year",   region: US, unit: "%", frequency: d, source: treasury, source_id: "1 Yr"}
+  - {key: US.UST.2Y,  name: "Treasury 2-year",   region: US, unit: "%", frequency: d, source: treasury, source_id: "2 Yr"}
+  - {key: US.UST.3Y,  name: "Treasury 3-year",   region: US, unit: "%", frequency: d, source: treasury, source_id: "3 Yr"}
+  - {key: US.UST.5Y,  name: "Treasury 5-year",   region: US, unit: "%", frequency: d, source: treasury, source_id: "5 Yr"}
+  - {key: US.UST.7Y,  name: "Treasury 7-year",   region: US, unit: "%", frequency: d, source: treasury, source_id: "7 Yr"}
+  - {key: US.UST.10Y, name: "Treasury 10-year",  region: US, unit: "%", frequency: d, source: treasury, source_id: "10 Yr"}
+  - {key: US.UST.20Y, name: "Treasury 20-year",  region: US, unit: "%", frequency: d, source: treasury, source_id: "20 Yr"}
+  - {key: US.UST.30Y, name: "Treasury 30-year",  region: US, unit: "%", frequency: d, source: treasury, source_id: "30 Yr"}
+
+  # ── Euro area ── ECB Data Portal (no key) ───────────────────────────────────
+  - {key: EU.HICP.YOY,     name: "HICP inflation, % y/y",      region: EU, unit: "%", frequency: m, source: ecb, source_id: "ICP/M.U2.N.000000.4.ANR"}
+  - {key: EU.COREHICP.YOY, name: "Core HICP (ex energy, food, alcohol, tobacco), % y/y", region: EU, unit: "%", frequency: m, source: ecb, source_id: "ICP/M.U2.N.XEF000.4.ANR"}
+  - {key: EU.ECB.DFR,      name: "ECB deposit facility rate",  region: EU, unit: "%", frequency: d, source: ecb, source_id: "FM/D.U2.EUR.4F.KR.DFR.LEV"}
+  - {key: EU.AAA.10Y,      name: "Euro area AAA govt 10y spot yield", region: EU, unit: "%", frequency: d, source: ecb, source_id: "YC/B.U2.EUR.4F.G_N_A.SV_C_YM.SR_10Y"}
+  - {key: EU.AAA.2Y,       name: "Euro area AAA govt 2y spot yield",  region: EU, unit: "%", frequency: d, source: ecb, source_id: "YC/B.U2.EUR.4F.G_N_A.SV_C_YM.SR_2Y"}
+  - {key: DE.BUND.10Y.M,   name: "German 10y govt bond yield (monthly)", region: EU, unit: "%", frequency: m, source: ecb, source_id: "IRS/M.DE.L.L40.CI.0000.EUR.N.Z"}
+  - {key: EU.UNEMP,        name: "Unemployment rate",          region: EU, unit: "%", frequency: m, source: ecb, source_id: "LFSI/M.I9.S.UNEHRT.TOTAL0.15_74.T", verified: false}
+
+  # ── United Kingdom ── Bank of England (no key) ──────────────────────────────
+  - {key: UK.BANKRATE,     name: "Bank Rate",                  region: UK, unit: "%", frequency: d, source: boe, source_id: IUDBEDR}
+  - {key: UK.GILT.10Y,     name: "Gilt 10y nominal zero-coupon yield", region: UK, unit: "%", frequency: d, source: boe, source_id: IUDMNZC}
+
+  # ── United Kingdom ── ONS (no key) ──────────────────────────────────────────
+  - {key: UK.CPI.YOY,      name: "CPI, % y/y",                 region: UK, unit: "%", frequency: m, source: ons, source_id: D7G7, params: {path: /economy/inflationandpriceindices/timeseries/d7g7/mm23}}
+  - {key: UK.CORECPI.YOY,  name: "Core CPI, % y/y",            region: UK, unit: "%", frequency: m, source: ons, source_id: DKO8, params: {path: /economy/inflationandpriceindices/timeseries/dko8/mm23}, verified: false}
+  - {key: UK.UNEMP,        name: "Unemployment rate (16+)",    region: UK, unit: "%", frequency: m, source: ons, source_id: MGSX, params: {path: /employmentandlabourmarket/peoplenotinwork/unemployment/timeseries/mgsx/lms}, verified: false}
+  - {key: UK.GDP.QOQ,      name: "GDP, % q/q",                 region: UK, unit: "%", frequency: q, source: ons, source_id: IHYQ, params: {path: /economy/grossdomesticproductgdp/timeseries/ihyq/pn2}, verified: false}
+
+  # ── Japan ── Ministry of Finance JGB reference rates (no key) ───────────────
+  - {key: JP.JGB.2Y,  name: "JGB 2-year",  region: JP, unit: "%", frequency: d, source: mof, source_id: "2Y"}
+  - {key: JP.JGB.5Y,  name: "JGB 5-year",  region: JP, unit: "%", frequency: d, source: mof, source_id: "5Y"}
+  - {key: JP.JGB.10Y, name: "JGB 10-year", region: JP, unit: "%", frequency: d, source: mof, source_id: "10Y"}
+  - {key: JP.JGB.30Y, name: "JGB 30-year", region: JP, unit: "%", frequency: d, source: mof, source_id: "30Y"}
+
+  # ── Japan ── Bank of Japan Time-Series API (no key) ─────────────────────────
+  - {key: JP.CALLRATE, name: "Uncollateralised overnight call rate (BoJ policy rate proxy)", region: JP, unit: "%", frequency: d, source: boj, source_id: STRDCLUCON, params: {db: FM01}, verified: false}
+
+  # ── South Korea ── Bank of Korea ECOS (key) ─────────────────────────────────
+  - {key: KR.BASERATE, name: "Bank of Korea base rate", region: KR, unit: "%", frequency: m, source: ecos, source_id: "722Y001", params: {cycle: M, item: "0101000"}}
+  - {key: KR.CPI.YOY,  name: "CPI, % y/y",              region: KR, unit: "%", frequency: m, source: ecos, source_id: "901Y009", params: {cycle: M, item: "0"}, transform: yoy}
+  - {key: KR.KTB.3Y,   name: "KTB 3-year",              region: KR, unit: "%", frequency: d, source: ecos, source_id: "817Y002", params: {cycle: D, item: "010200000"}, verified: false}
+  - {key: KR.KTB.10Y,  name: "KTB 10-year",             region: KR, unit: "%", frequency: d, source: ecos, source_id: "817Y002", params: {cycle: D, item: "010210000"}}

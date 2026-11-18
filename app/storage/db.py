@@ -71,11 +71,18 @@ def table_counts(conn: sqlite3.Connection) -> dict[str, int]:
 
 
 def record_status(
-    conn: sqlite3.Connection, name: str, ok: bool, detail: str = "", error: str = ""
+    conn: sqlite3.Connection, name: str, ok: bool | None, detail: str = "", error: str = ""
 ) -> None:
-    """Record a collector's success or failure for the status page."""
+    """Record a collector's success (ok=True), failure (ok=False) or a neutral note
+    such as 'not configured' (ok=None, updates the detail only)."""
     now = utcnow()
-    if ok:
+    if ok is None:
+        conn.execute(
+            """INSERT INTO collector_status(name, detail) VALUES (?, ?)
+               ON CONFLICT(name) DO UPDATE SET detail=excluded.detail""",
+            (name, detail),
+        )
+    elif ok:
         conn.execute(
             """INSERT INTO collector_status(name, last_success, detail) VALUES (?, ?, ?)
                ON CONFLICT(name) DO UPDATE SET last_success=excluded.last_success,
