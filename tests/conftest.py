@@ -12,6 +12,7 @@ def settings(tmp_path) -> Settings:
         db_path=tmp_path / "test.sqlite",
         config_dir=PROJECT_ROOT / "config",
         web_dir=PROJECT_ROOT / "web",
+        collectors_enabled=False,
     )
 
 

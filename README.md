@@ -6,17 +6,38 @@ Europe and the UK. Alerts go to Telegram, and Claude writes daily briefings.
 
 > Decision-support only, not financial advice.
 
-**Status:** Phase 1 of 9 complete (v0.1.0). See [docs/ROADMAP.md](docs/ROADMAP.md).
+**Status:** Phase 2 of 9 built (v0.2.0): official macro data for the US, euro area, UK, Japan and Korea. See [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Try it in the browser (nothing to install)
 1. On GitHub: **Code → Codespaces → Create codespace on main**.
-2. Wait for the setup to finish (first time ~2 minutes). The app starts automatically and the
-   dashboard opens in a new tab. If it doesn't, open the **Ports** tab and click the globe icon
-   next to port 8000.
+2. Wait for the setup to finish (first time ~2 minutes). The app starts automatically in a
+   terminal panel named **Run GlobalMarketWatch**, and the dashboard opens in a preview pane
+   inside the codespace.
 3. You'll see the **system status** page: app health, background jobs, integrations and the core
    watchlist.
 
+**To open the dashboard in a full browser tab:** click the **antenna icon** in the blue status bar
+at the bottom (it shows the number of forwarded ports) → hover over port **8000** → click the
+**globe icon**.
+
+**If the dashboard doesn't appear**
+- The app isn't running: **☰ menu → Terminal → Run Task… → Run GlobalMarketWatch**.
+- VS Code asked "Allow automatic tasks?": choose **Allow**, so the app starts by itself next time.
+- Check the **Run GlobalMarketWatch** terminal for error messages.
+
 Stop the codespace when you're done (**Codespaces → Stop**) to save your free monthly hours.
+
+## Adding API keys (Codespaces)
+Most sources need no key. Two do, and both are free:
+
+| Secret name | Where to get it | Unlocks |
+|---|---|---|
+| `GMW_FRED_API_KEY` | fred.stlouisfed.org → My Account → API Keys | US CPI, PCE, payrolls, GDP, Fed funds, spreads |
+| `GMW_BOK_ECOS_API_KEY` | ecos.bok.or.kr → Open API → apply for a key | Korea base rate, CPI, bond yields |
+
+Add them on GitHub: **repository Settings → Secrets and variables → Codespaces → New repository
+secret**. Then restart the codespace (or rebuild it). Never put keys in code, chats or commits.
+After adding a key, press **Run now** next to the source on the status page.
 
 ## How it's built
 - One Python app (FastAPI web server + background scheduler) and a SQLite database

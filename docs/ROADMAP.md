@@ -15,20 +15,23 @@ Architecture reference: Claude project doc `architecture/GlobalMarketWatch-Archi
 
 **Done when:** app starts, schema created, core watchlist visible on the status page, CI green.
 
-## Phase 2 — Macro collectors (M3) · v0.2.0
-- [ ] Collector framework: base class, retries/backoff, status reporting, release-time scheduling
-- [ ] Series catalogue `config/series.yaml`
-- [ ] FRED collector (US CPI, core CPI, PCE, payrolls, unemployment, GDP, Fed funds, 2y/10y/30y, 2s10s, breakevens)
-- [ ] US Treasury daily yield curve collector
-- [ ] ECB Data Portal collector (HICP, deposit rate, Bund yields)
-- [ ] Bank of England collector (Bank Rate, gilt yields) + ONS (CPI)
-- [ ] Bank of Japan / MoF collector (policy rate, JGB yields, CPI via e-Stat)
-- [ ] Bank of Korea ECOS collector (base rate, CPI, KTB yields)
-- [ ] Revision detection on `macro_obs`
+## Phase 2 — Macro collectors (M3) · v0.2.0 ✅ built (PR), live check pending
+- [x] Collector framework: base class, retries/backoff, status reporting, release-time scheduling
+- [x] Series catalogue `config/series.yaml`
+- [x] FRED collector (US CPI, core CPI, PCE, payrolls, unemployment, GDP, Fed funds, 2y/10y/30y, 2s10s, breakevens)
+- [x] US Treasury daily yield curve collector
+- [x] ECB Data Portal collector (HICP, deposit rate, Bund yields)
+- [x] Bank of England collector (Bank Rate, gilt yields) + ONS (CPI)
+- [x] Bank of Japan / MoF collector (policy rate, JGB yields). Japan CPI moved to phase 3 (needs a free e-Stat appId)
+- [x] Bank of Korea ECOS collector (base rate, CPI, KTB yields)
+- [x] Revision detection on `macro_obs`
+
+- [ ] Live check of all series in a Codespace with real keys (owner)
 
 **Done when:** key series for US, euro area, UK, Japan and Korea stored and refreshing on schedule.
 
 ## Phase 3 — Dashboard: macro view (M5 v1) · v0.3.0
+- [ ] Japan CPI collector via e-Stat (free appId)
 - [ ] `/api/macro` endpoints (latest, history, by region)
 - [ ] Macro dashboard page: yields, inflation, policy rates by region with charts
 - [ ] Yield-curve chart (US, DE, UK, JP, KR)

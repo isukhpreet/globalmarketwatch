@@ -29,3 +29,9 @@ tr:last-child td { border-bottom: none; }
 .chip { font-size: 13px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); }
 .chip.on { background: var(--chip-on); color: var(--accent); border-color: transparent; }
 code { font-size: 13px; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.up { color: var(--ok); } .down { color: var(--err); }
+.small { font-size: 12px; margin-top: 2px; }
+.tag { font-size: 11px; padding: 1px 6px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); margin-left: 4px; }
+button.run { font: inherit; font-size: 12px; padding: 3px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; white-space: nowrap; }
+button.run:disabled { opacity: .6; cursor: default; }

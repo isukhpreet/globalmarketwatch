@@ -9,7 +9,9 @@ Read this first in every session.
 - Decisions: `docs/decisions.md`. Add a row for every design choice
 
 ## How we work
-- One issue → one branch (`phase-N/short-name`) → one PR that references the issue (`Closes #N`)
+- One issue → one branch (`phase-N/short-name`) → one PR that references the issue (`Closes #N`).
+  For tightly coupled tasks within a phase: one branch and PR for the phase, one commit per issue
+  (decision D13)
 - The owner reviews and merges PRs. Don't push directly to `main` after the initial commit
 - Every PR: tests added or updated, `ruff check .` and `pytest -q` pass, CHANGELOG entry
 - Tag `vX.Y.0` when a phase's "done when" checks pass
