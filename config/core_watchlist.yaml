@@ -1,0 +1,28 @@
+# Core watchlist (architecture §7.1): always watched, editable.
+# Symbol mappings are filled in per source; blanks are completed in phase 4 (M2/M10)
+# once the IG and Finnhub accounts exist and symbols can be verified.
+
+instruments:
+  # Equity indices
+  - {key: IDX.SPX,   name: "S&P 500",       asset_class: index, region: US, currency: USD, yf_symbol: "^GSPC"}
+  - {key: IDX.NDX,   name: "Nasdaq 100",    asset_class: index, region: US, currency: USD, yf_symbol: "^NDX"}
+  - {key: IDX.N225,  name: "Nikkei 225",    asset_class: index, region: JP, currency: JPY, yf_symbol: "^N225"}
+  - {key: IDX.KOSPI, name: "KOSPI",         asset_class: index, region: KR, currency: KRW, yf_symbol: "^KS11"}
+  - {key: IDX.SX5E,  name: "Euro Stoxx 50", asset_class: index, region: EU, currency: EUR, yf_symbol: "^STOXX50E"}
+  - {key: IDX.DAX,   name: "DAX",           asset_class: index, region: EU, currency: EUR, yf_symbol: "^GDAXI"}
+  - {key: IDX.UKX,   name: "FTSE 100",      asset_class: index, region: UK, currency: GBP, yf_symbol: "^FTSE"}
+  - {key: VOL.VIX,   name: "VIX",           asset_class: volatility, region: US, currency: USD, yf_symbol: "^VIX"}
+
+  # Bond futures (price, not yield; official yields come from M3)
+  - {key: BF.ZN,   name: "US 10y T-note future", asset_class: bond_future, region: US, currency: USD, yf_symbol: "ZN=F"}
+  - {key: BF.BUND, name: "Euro-Bund future",     asset_class: bond_future, region: EU, currency: EUR}
+
+  # FX
+  - {key: FX.GBPUSD, name: "GBP/USD", asset_class: fx, region: GLOBAL, currency: USD, yf_symbol: "GBPUSD=X"}
+  - {key: FX.EURUSD, name: "EUR/USD", asset_class: fx, region: GLOBAL, currency: USD, yf_symbol: "EURUSD=X"}
+  - {key: FX.USDJPY, name: "USD/JPY", asset_class: fx, region: GLOBAL, currency: JPY, yf_symbol: "JPY=X"}
+  - {key: FX.USDKRW, name: "USD/KRW", asset_class: fx, region: GLOBAL, currency: KRW, yf_symbol: "KRW=X"}
+
+  # Commodities
+  - {key: CMD.GOLD,  name: "Gold",        asset_class: commodity, region: GLOBAL, currency: USD, yf_symbol: "GC=F"}
+  - {key: CMD.BRENT, name: "Brent crude", asset_class: commodity, region: GLOBAL, currency: USD, yf_symbol: "BZ=F"}
