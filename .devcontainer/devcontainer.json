@@ -2,12 +2,14 @@
   "name": "GlobalMarketWatch",
   "image": "mcr.microsoft.com/devcontainers/python:3.12",
   "postCreateCommand": "pip install -r requirements-dev.txt",
-  "postStartCommand": "nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 > server.log 2>&1 &",
   "forwardPorts": [8000],
   "portsAttributes": {
-    "8000": { "label": "GlobalMarketWatch dashboard", "onAutoForward": "openBrowser" }
+    "8000": { "label": "GlobalMarketWatch dashboard", "onAutoForward": "openPreview" }
   },
   "customizations": {
-    "vscode": { "extensions": ["ms-python.python", "charliermarsh.ruff"] }
+    "vscode": {
+      "extensions": ["ms-python.python", "charliermarsh.ruff"],
+      "settings": { "task.allowAutomaticTasks": "on" }
+    }
   }
 }
